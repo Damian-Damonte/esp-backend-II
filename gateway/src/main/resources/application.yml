@@ -1,0 +1,43 @@
+server:
+  port: 8090
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      default-filters: TokenRelay
+      routes:
+        - id: apidocumento
+          uri: lb://api-documento
+          predicates:
+            - Path=/documentos/**
+        - id: apipersona
+          uri: lb://api-persona
+          predicates:
+            - Path=/personas/**
+
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/keycloak-feign
+        registration:
+          keycloak:
+            client-id: gateway-client
+            client-secret: 6cSaUTdTmkCEXPERS4Yk4fg403KnYKvw
+            scope:
+              - openid
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8090/login/oauth2/code/keycloak
